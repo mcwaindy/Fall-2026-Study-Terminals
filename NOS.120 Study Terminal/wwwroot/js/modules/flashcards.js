@@ -31,7 +31,7 @@ NOS.addModule({
       const flip = () => { flipped = true; draw(); };
       NOS.$("#f", el).onclick = () => { if (!flipped) flip(); };
       if (flipped) {
-        NOS.$("#yes", el).onclick = () => { boxes[cur.id] = Math.min(4, (boxes[cur.id] || 0) + 1); NOS.store.set("fc", boxes); next(); };
+        NOS.$("#yes", el).onclick = () => { boxes[cur.id] = Math.min(4, (boxes[cur.id] || 0) + 1); NOS.store.set("fc", boxes); if (boxes[cur.id] < 3) queue.push(cur); next(); };
         NOS.$("#no", el).onclick = () => { boxes[cur.id] = 0; NOS.store.set("fc", boxes); queue.push(cur); next(); };
       } else NOS.$("#fl", el).onclick = flip;
       NOS.$("#m", el).onclick = menu;

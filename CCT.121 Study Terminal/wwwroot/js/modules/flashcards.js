@@ -31,7 +31,7 @@ CCT.addModule({
       const flip = () => { flipped = true; draw(); };
       CCT.$("#f", el).onclick = () => { if (!flipped) flip(); };
       if (flipped) {
-        CCT.$("#yes", el).onclick = () => { boxes[cur.id] = Math.min(4, (boxes[cur.id] || 0) + 1); CCT.store.set("fc", boxes); next(); };
+        CCT.$("#yes", el).onclick = () => { boxes[cur.id] = Math.min(4, (boxes[cur.id] || 0) + 1); CCT.store.set("fc", boxes); if (boxes[cur.id] < 3) queue.push(cur); next(); };
         CCT.$("#no", el).onclick = () => { boxes[cur.id] = 0; CCT.store.set("fc", boxes); queue.push(cur); next(); };
       } else CCT.$("#fl", el).onclick = flip;
       CCT.$("#m", el).onclick = menu;
