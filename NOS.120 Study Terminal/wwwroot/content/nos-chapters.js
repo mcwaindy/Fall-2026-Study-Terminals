@@ -1,6 +1,6 @@
 /* Builds NOS chapters from the legacy data files (notes, cards, quizzes, commands, challenges). */
 (() => {
-  const CAT = { 1: "core", 2: "core", 3: "files", 4: "files", 5: "admin", 6: "admin", 7: "core", 8: "boot" };
+  const CAT = { 1: "core", 2: "core", 3: "files", 4: "files", 5: "admin", 6: "admin", 7: "core", 8: "boot", 9: "admin" };
   const esc = NOS.esc;
   const fmt = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
   const concepts = window.CONCEPTS || {};

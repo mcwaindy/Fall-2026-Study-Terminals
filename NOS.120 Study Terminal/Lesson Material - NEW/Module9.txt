@@ -1,0 +1,572 @@
+=============================================
+linux_processes/1_viewing_processes.txt
+=============================================
+-----------------------------------------
+1 	ps command is most versatile and common to view processes
+-----------------------------------------
+2 	without args, ps simply displays a list of processes currently running in shell
+-----------------------------------------
+3 	use the -f (full) option to show more info about processes
+-----------------------------------------
+4 	-f adds user who started process (UID), PPID, and time it was started (STIME)
+-----------------------------------------
+5 	example:
+-----------------------------------------
+6 	UID          PID    PPID  C STIME TTY          TIME CMD
+-----------------------------------------
+7 	dylan        453     452  0 14:46 pts/0    00:00:00 /bin/bash
+-----------------------------------------
+8 	dylan       1044     453  0 16:20 pts/0    00:00:00 ps -f
+-----------------------------------------
+9 	daemon processes are not associated with a terminal; they are not displayed
+-----------------------------------------
+10	to display entire list of processes across all terminals, including daemons, add the -e option:
+-----------------------------------------
+11	UID          PID    PPID  C STIME TTY          TIME CMD
+-----------------------------------------
+12	root           1       0  0 14:46 ?        00:00:00 /sbin/init
+-----------------------------------------
+13	root           2       1  0 14:46 hvc0     00:00:00 /init
+-----------------------------------------
+14	root           3       2  0 14:46 hvc0     00:00:00 init-watcher
+-----------------------------------------
+15	root          10       2  0 14:46 hvc0     00:00:00 plan9 --control-socket 7 --log-level 4 --server-fd 8 --pipe-fd 10 --log-truncate
+-----------------------------------------
+16	root          57       1  0 14:46 ?        00:00:00 /usr/lib/systemd/systemd-journald
+-----------------------------------------
+17	systemd+      93       1  0 14:46 ?        00:00:00 /usr/lib/systemd/systemd-resolved
+-----------------------------------------
+18	root         106       1  0 14:46 ?        00:00:00 /usr/lib/systemd/systemd-udevd
+-----------------------------------------
+19	root         127       1  0 14:46 ?        00:00:00 /bin/sh /usr/lib/systemd/scripts/chronyd-starter.sh -n -F 1
+-----------------------------------------
+20	root         128       1  0 14:46 ?        00:00:00 /usr/sbin/cron -f -P
+-----------------------------------------
+21	message+     129       1  0 14:46 ?        00:00:00 @dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+-----------------------------------------
+22	root         134       1  0 14:46 ?        00:00:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+-----------------------------------------
+23	root         173       1  0 14:46 ?        00:00:00 /usr/lib/systemd/systemd-logind
+-----------------------------------------
+24	syslog       241       1  0 14:46 ?        00:00:00 /usr/sbin/rsyslogd -n -iNONE
+-----------------------------------------
+25	root         252       1  0 14:46 tty1     00:00:00 /usr/sbin/agetty --noreset --noclear --issue-file=/etc/issue:/etc/issue.d:/run/issue.d:/usr/lib/issue.d - linux
+-----------------------------------------
+26	_chrony      256     127  0 14:46 ?        00:00:00 /usr/sbin/chronyd -n -F 1 -x
+-----------------------------------------
+27	_chrony      265     256  0 14:46 ?        00:00:00 /usr/sbin/chronyd -n -F 1 -x
+-----------------------------------------
+28	root         296       1  0 14:46 ?        00:00:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+-----------------------------------------
+29	root         451       2  0 14:46 ?        00:00:00 /init
+-----------------------------------------
+30	root         452     451  0 14:46 ?        00:00:00 /init
+-----------------------------------------
+31	dylan        453     452  0 14:46 pts/0    00:00:00 /bin/bash
+-----------------------------------------
+32	dylan        652       1  0 14:47 ?        00:00:00 /usr/lib/systemd/systemd --user
+-----------------------------------------
+33	dylan        654     652  0 14:47 ?        00:00:00 (sd-pam)
+-----------------------------------------
+34	root         772       2  0 14:47 ?        00:00:00 login -- dylan
+-----------------------------------------
+35	dylan        812     772  0 14:47 pts/1    00:00:00 -bash
+-----------------------------------------
+36	dylan       1081     453  0 16:34 pts/0    00:00:00 ps -ef
+-----------------------------------------
+37	usually pipe with less to read page by page
+-----------------------------------------
+38	can also use grep to display lines containing certain info
+-----------------------------------------
+39	example, displaying only BASH shells on system:
+-----------------------------------------
+40	dylan        453     452  0 14:46 pts/0    00:00:00 /bin/bash
+-----------------------------------------
+41	dylan        812     772  0 14:47 pts/1    00:00:00 -bash
+-----------------------------------------
+42	dylan       1085     453  0 16:35 pts/0    00:00:00 grep --color=auto bash
+-----------------------------------------
+43	notice grep is listed because it is in memory at the time; may not always be the case because the Linux kernels schedule commands based on several factors
+-----------------------------------------
+44	-l option lists even more info that -f
+-----------------------------------------
+45	example:
+-----------------------------------------
+46	F S   UID     PID    PPID  C PRI  NI ADDR SZ WCHAN  TTY          TIME CMD
+-----------------------------------------
+47	4 S  1000     453     452  0  80   0 -  1582 do_wai pts/0    00:00:00 bash
+-----------------------------------------
+48	0 R  1000    1113     453  0  80   0 -  1798 -      pts/0    00:00:00 ps
+-----------------------------------------
+49	process flag (F) indincates features of process. e.g. flag of 4 indicates root user ran process.
+-----------------------------------------
+50	process state (S) column is the most valuable to system admins because it indicates what the process is currently doing
+-----------------------------------------
+51	if process is not being run one the processor at the current time, you will see S (interruptible sleep) in the process state column
+-----------------------------------------
+52	processes are in this state most of the time and are awoken by other processes when needed
+-----------------------------------------
+53	R stands for Running, D stands for uninterruptible sleep and waiting for disk access, and a T means it has stopped or is being traced by another process. In addition, you may also see a Z, which indicates a zombie process
+-----------------------------------------
+54	a zombie process has finished executing who the parent has not yet released its PID
+-----------------------------------------
+55	on a linux server, zombie processes can accumulate and prevent new processes from being created. Kill the parent of the zombies to fix
+-----------------------------------------
+56	also known as defunct processes
+-----------------------------------------
+57	use 'ps -el | grep Z' to view zombie processes on entire system
+-----------------------------------------
+58	Process Priority (PRI) is the priority used by the kernel for the process
+-----------------------------------------
+59	measured between 0 (High priority) and 127 (low priority)
+-----------------------------------------
+60	nice value (NI) can be used to affect the process priority indirectly. measured between -20 (greater chance of high priority) and 19 (lower chance of high priority)
+-----------------------------------------
+61	the ADDR indicates the memory address of the process. WHCAN indicates what the process is waiting for while sleeping. SZ is the memory size and measured in KB, roughly the size of the exe
+-----------------------------------------
+62	some ps options are not prefixed by a dash. these are called Berkeley style options
+-----------------------------------------
+63	the two most common are a and x options. a option lists all processes across terminals. x option lists processes do NOT run on a terminal
+-----------------------------------------
+64	for these commands, the process state column is identified with STAT and might contain additional characters to indicate the full nature of the process state
+-----------------------------------------
+65	ex. W indicates that the process has no contents in memory. < symbol indicates high-priority process. N indicates a low priority process.
+-----------------------------------------
+66	ps command is not the only command to view process info.
+-----------------------------------------
+67	the kernel exports all process info subdirectories under the /proc directory
+-----------------------------------------
+68	each subdirectory is named for the PID of the process it contains info for:
+-----------------------------------------
+69	1     252  812	      diskstats	     kcore	  mounts	 sysvipc
+-----------------------------------------
+70	10    256  93	      dma	     key-users	  net		 thread-self
+-----------------------------------------
+71	106   265  acpi	      driver	     keys	  pagetypeinfo	 timer_list
+-----------------------------------------
+72	127   296  buddyinfo  dynamic_debug  kmsg	  partitions	 tty
+-----------------------------------------
+73	128   3	   bus	      execdomains    kpagecgroup  pressure	 uptime
+-----------------------------------------
+74	129   451  cgroups    filesystems    kpagecount	  scsi		 version
+-----------------------------------------
+75	134   452  cmdline    fs	     kpageflags	  self		 vmallocinfo
+-----------------------------------------
+76	1425  453  config.gz  interrupts     loadavg	  softirqs	 vmstat
+-----------------------------------------
+77	1454  57   consoles   iomem	     locks	  stat		 zoneinfo
+-----------------------------------------
+78	173   652  cpuinfo    ioports	     meminfo	  swaps
+-----------------------------------------
+79	2     654  crypto     irq	     misc	  sys
+-----------------------------------------
+80	241   772  devices    kallsyms	     modules	  sysrq-trigger
+-----------------------------------------
+81	rogue processes are processes that become faulty in some way and continue to consume far more system resources than it should. Also called a runaway. You may see a process that has encountered an error and continues to use up resources.
+-----------------------------------------
+82	appear at the top of the listing produced by the 'top' command
+-----------------------------------------
+83	the top command is also common for displaying processes. it displays an interactive screen listing processes organized by processor time.
+-----------------------------------------
+84	processes that use the most processor time are at the top
+-----------------------------------------
+85	use the h key to get commands usable while in the interactive top utility
+-----------------------------------------
+86	many admins choose to install the htop command. provides the same functionality as top, but displays results in color and includes a resource graph and usage legend
+
+=============================================
+linux_processes/2_killing_processes.txt
+=============================================
+-----------------------------------------
+1 	when there are a large number of rogue and zombie processes using resources, you should send them a kill signal
+-----------------------------------------
+2 	a kill signal terminates a process
+-----------------------------------------
+3 	the most command to send kill signals is the kill command.
+-----------------------------------------
+4 	the kill command can send many different types of kill signals, and each kill signal operates in a different manner.
+-----------------------------------------
+5 	use the -l option to view the kill signal names and associated numbers
+-----------------------------------------
+6 	most of the commands are not useful for admins. Here are the five most common kill signals:
+-----------------------------------------
+7 	NAME		NUMBER			DESCRIPTION
+-----------------------------------------
+8 	SIGHUP		1		AKA hang-up signal. Stops a process, then restarts it with the same PID. if you edit the config file used by a running daemon, the daimon might be sent this signal and read the new config file
+-----------------------------------------
+9 	SIGINT		2		Sends an interrupt signal to a process. One of the weakest, but works most of the time. CTRL+C is actually a SIGINT.
+-----------------------------------------
+10	SIGQUIT		3		AKA core dump. terminates a process by taking the process info im memory and saving it to a file called core on the FS in the current working dir. CTRL+\ key combination.
+-----------------------------------------
+11	SIGTERM		15		software termination signal. most common kill signal used by programs to kill other processes. Also the default used by the kill command.
+-----------------------------------------
+12	SIGKILL		9		AKA absolute kill signal. forces linux kernel to stop executing the process by sending the process's resources to a special device called /dev/null
+-----------------------------------------
+13	specify the kill signal to send as an option to the kill command, followed by appropriate PID of the process to send a kill signal
+-----------------------------------------
+14	example: to kill a process called sample
+-----------------------------------------
+15	ps -ef | grep sample (shows process)
+-----------------------------------------
+16	kill -3 1199
+-----------------------------------------
+17	ps -ef | grep sample (process is gone)
+-----------------------------------------
+18	if you do not specify the kill signal, the kill command uses SIGTERM, the default
+-----------------------------------------
+19	the pidof command can also be used to find the PID of a process to use as an arg to the kill command.
+-----------------------------------------
+20	the pgrep command returns a list of PIDs for processes that match a regex or other criteria, and is often easier to locate processes.
+-----------------------------------------
+21	example:
+-----------------------------------------
+22	pgrep -u bini "^psgl"
+-----------------------------------------
+23	returns a list of processes that start with the letters 'psql'
+-----------------------------------------
+24	some processes have the ability to ignore, or trap, certain kill signals
+-----------------------------------------
+25	the only kill signal that cannot be trapped by any process is SIGKILL
+-----------------------------------------
+26	however, you should only use SIGKILL as a last resort because it prevents a process from closing open files and other resources properly
+-----------------------------------------
+27	the lsof (list open files) command views the files that a process has open before sending a SIGKILL.
+-----------------------------------------
+28	if you send a kill signal to a process with children, the parent process terminates all child processes before terminating itself.
+-----------------------------------------
+29	killing a parent process is often necessary for zombies
+-----------------------------------------
+30	conversely, to prevent a parent from killing a child, you can start the child process with the nohup command.
+-----------------------------------------
+31	killall command can also kill processes. uses the process name instead of PID
+-----------------------------------------
+32	allows multiple processes of same name to be killed at once
+-----------------------------------------
+33	SIGTERM is still the default for killall
+-----------------------------------------
+34	the pkill command also kills processes by process name. allows you to identify process names using regex and other criteria
+-----------------------------------------
+35	example:
+-----------------------------------------
+36	pkill -u bini -3 "^psql"
+-----------------------------------------
+37	the top command can also be used to kill processes. while in utility, use the k key and supply the PID, then kill signal when prompted.
+
+=============================================
+linux_processes/3_process_execution.txt
+=============================================
+-----------------------------------------
+1 	You can execute three main types of linux commands:
+-----------------------------------------
+2 	# Binary Programs
+-----------------------------------------
+3 	# Shell Scripts
+-----------------------------------------
+4 	# Shell Functions
+-----------------------------------------
+5 	most commands are binary programs, exist on FS until executed. Written in a certain programming language and compiled into binary format. ls, find, grep.
+-----------------------------------------
+6 	other commands are built into the shell running in memory, called shell functions. cd, exit.
+-----------------------------------------
+7 	shell scripts can also contain a list of bin programs, shell functions, and special constructs for the shell to execute in order
+-----------------------------------------
+8 	when executing compiled programs or shell scripts, the shell that interprets the command you typed creates a new shell. This is known as forking.
+-----------------------------------------
+9 	carried out by the fork function in a shell
+-----------------------------------------
+10	the new subshell executes the binary program or shell script using its exec function. after completion, the new shell uses its exit function to kill itself and return control to the original shell
+-----------------------------------------
+11	the original shell uses a wait function to wait for the new shell to finish
+
+=============================================
+linux_processes/4_running_processes_in_the_background.txt
+=============================================
+-----------------------------------------
+1 	processes for which the shell that executed it must wait for its termination are called foreground processes
+-----------------------------------------
+2 	you can omit the wait function by appending an ampersand to the command
+-----------------------------------------
+3 	commands run in this fashion are called background processes
+-----------------------------------------
+4 	the shell immediately returns the shell prompt for the user to enter another command when a command is run in the background
+-----------------------------------------
+5 	example:
+-----------------------------------------
+6 	sample &
+-----------------------------------------
+7 	[1] 2583
+-----------------------------------------
+8 	the space between the ampersand is not required
+-----------------------------------------
+9 	the shell returns the PID and a background job ID so that you can manipulate the bg job after it has been run.
+-----------------------------------------
+10	you can use the ps or jobs commands to view the background job ID
+-----------------------------------------
+11	along with the PID, you can kill a bg process by sending a kill signal to the job ID. bg job IDs must be prefixed with a % char
+-----------------------------------------
+12	you can move a bg process to the foreground by using the fg command
+-----------------------------------------
+13	you can pause a foreground process with the CTRL+Z command, and then send the process to the background with the bg command.
+-----------------------------------------
+14	the CTRL+Z key combination assigns the foreground process a job ID that is then used as an arg for the bg command
+-----------------------------------------
+15	when there are multiple bg processes, the jobs command indicates the most recent one with a + symbol
+-----------------------------------------
+16	the second most recent has a - symbol
+-----------------------------------------
+17	using the % notation without an ID, it it will operate with the most recent bg process.
+
+=============================================
+linux_processes/5_process_priorities.txt
+=============================================
+-----------------------------------------
+1 	because most computers obtain only a single CPU, Linux executes small amounts of each process on the processor in a series.
+-----------------------------------------
+2 	time slice is the the amount of time a process has to use the CPU is called a time slice. The more time slices a process has, the more time it has to execute on the CPU and the faster it executes.
+-----------------------------------------
+3 	Time slices are typically measured in milliseconds. several hundred processes can be executing on the processor in a single second.
+-----------------------------------------
+4 	the 'ps -l' command lists the kernel priority (PRI) of a process. directly related to the amount of time slices a process has on the CPU.
+-----------------------------------------
+5 	A PRI of 0 is most likely to get time slices on the CPU, and a PRI of 127 is the least likely.
+-----------------------------------------
+6 	you cannot change the PRI directly, but you can influence it by assigning a certain nice value to a process
+-----------------------------------------
+7 	all users can be "nice" to a process and increase their nice value, but only an admin can lower the nice value.
+-----------------------------------------
+8 	processes are started with a nice value of 0 by default
+-----------------------------------------
+9 	to start, for instance, the ps -l command, with a nice value of +19, use the -n option:
+-----------------------------------------
+10	nice -n 19 ps -l
+-----------------------------------------
+11	if the process is already started, you can change its priority by using the renice command:
+-----------------------------------------
+12	renice +15 1990 2180
+-----------------------------------------
+13	you can also use the top utility to change nice values. Use the r key, then supply the PID and nice value when prompted.
+-----------------------------------------
+14	root user can use renice to change the priority of all processes owned by a certain user or group:
+-----------------------------------------
+15	renice +15 -u mary bini
+-----------------------------------------
+16	renice +15 -g sys
+
+=============================================
+scheduling_commands/1_introduction.txt
+=============================================
+-----------------------------------------
+1 	while most processes are started by users executing comands at a terminal, sometimes you want to schedule a commadn to execute at some point in the future.
+-----------------------------------------
+2 	ex. scheduling system maintainance commands to run during nononworking hours is good practice.
+-----------------------------------------
+3 	there are two different daemons to schedule commands:
+-----------------------------------------
+4 	the at daemon (atd) can be used to schedule a command to execute once in the future
+-----------------------------------------
+5 	the cron daemon (crond) is used to scedule a command to execute repeatedly in the future.
+
+=============================================
+scheduling_commands/2_scheduling_commands_with_atd.txt
+=============================================
+-----------------------------------------
+1 	specify the time as an arg to the at command
+-----------------------------------------
+2 	here are some common time formats for at:
+-----------------------------------------
+3 	COMMAND			DESCRIPTION
+-----------------------------------------
+4 	at 10:15pm		schedules commands to run at 10:15 on the current date
+-----------------------------------------
+5 	at 10:15pm July 15	schedules commands to run at 10:15 PM on July 15
+-----------------------------------------
+6 	at 10:15pm July 15	schedules commands to run at 10:15 PM on July 15
+-----------------------------------------
+7 	at midnight		schedules commands to run at midnight on the current date
+-----------------------------------------
+8 	at noon July 15		schedules commands to run at noon on July 15
+-----------------------------------------
+9 	at teatime		schedules commands to run at 4:00 PM on the current date.
+-----------------------------------------
+10	at tomorrow		schedules commands to run the next day.
+-----------------------------------------
+11	at now + 5 minutes	schedules commands to run in five minutes
+-----------------------------------------
+12	at now + 10 Hours	schedules commands to run in ten hours.
+-----------------------------------------
+13	at now + 4 days		Schedules commands to run in four days.
+-----------------------------------------
+14	at now + 2 weeks	schedules commands to run in two weeks
+-----------------------------------------
+15	at now; at batch	schedules commands to run immediately
+-----------------------------------------
+16	at 9:00am 01/03/2023	schedules commands to run at 9:00 AM on january 3, 2023
+-----------------------------------------
+17	at 9:00am 01032023
+-----------------------------------------
+18	at 9:00am 03.02.2023
+-----------------------------------------
+19	after being invoked, the at command displays an 'at>' prompt. commands can be executed, one per line.
+-----------------------------------------
+20	after the commands have been entered, use CTRL+D key combination to schedule the commands.
+-----------------------------------------
+21	the atd daemon uses the current shell's env. stored in /var/spool/at directory on fedora systems or /var/spool/cron/atjobs on Ubuntu systems.
+-----------------------------------------
+22	because most distros do not ship with a mail daemon, it is important to redirect the output of any commands scheduled using atd to a file.
+-----------------------------------------
+23	example:
+-----------------------------------------
+24	==============================
+-----------------------------------------
+25	# at 10:15pm July 15
+-----------------------------------------
+26	at> date > /root/atfile
+-----------------------------------------
+27	at> who >> /root/atfile
+-----------------------------------------
+28	at> CTRL+D
+-----------------------------------------
+29	job 1 at Wed Jul 15 22:15:00 2023
+-----------------------------------------
+30	#
+-----------------------------------------
+31	=============================
+-----------------------------------------
+32	the at command returns a job ID. you can use this ID to query or remove the schedule command
+-----------------------------------------
+33	to see a list of at job IDs, you can specify the -l option to the at command:
+-----------------------------------------
+34	at -l
+-----------------------------------------
+35	for regular users, at -l output only shows their own shceduled processes; root user sees all schedules jobs at once.
+-----------------------------------------
+36	to see the ocntents of the job alongside the shell env at the time the job was scheduled, you can use the -c option with the at command and specify the job ID
+-----------------------------------------
+37	to remove the at job, specify the -d option followed by the appropriate job ID.
+-----------------------------------------
+38	if there are many commands to be scheduled using the at daemon, you can use a shell script and schedule the shell script to execute using the -f option.
+-----------------------------------------
+39	example:
+-----------------------------------------
+40	# cat myscript
+-----------------------------------------
+41	#this is a sample shell script
+-----------------------------------------
+42	date > /root/atfile
+-----------------------------------------
+43	who > /root/atfile
+-----------------------------------------
+44	# at 10:15pm July 16 -f myscript
+-----------------------------------------
+45	job 2 at Wed Jul 15 22:15:00 2023
+-----------------------------------------
+46	#
+-----------------------------------------
+47	=================================================
+-----------------------------------------
+48	if /etc/at.allow and /etc/at.deny files don't exist, only root user is allowed to schedule tasks with at
+-----------------------------------------
+49	to give ability to other users, create an allow file and add the names of users, one per line
+-----------------------------------------
+50	the deny file can deny certain users access. any user not listed in this file is allowed to use the at daemon
+-----------------------------------------
+51	if both files exist, the system checks the allow file and does not process the deny file
+
+=============================================
+scheduling_commands/3_scheduling_commands_with_cron.txt
+=============================================
+-----------------------------------------
+1 	cron is better suited for repetitive tasks because it uses config files called cron tables that specify when a command should be executed.
+-----------------------------------------
+2 	a cron table has six fields separated by space or tab chars.
+-----------------------------------------
+3 	the first five fields specify run times.
+-----------------------------------------
+4 	the sixth field is the abs pathbame to the command to be executed
+-----------------------------------------
+5 	same as at, you can place commands in a shell script and schedule the shell script to run repetitively. in this case, the sixth field the pathname of the shell script.
+-----------------------------------------
+6 	cron table fields:
+-----------------------------------------
+7 	============================================
+-----------------------------------------
+8 	1 = Minute past the hour (0-59)
+-----------------------------------------
+9 	2 = Hour (0-23)
+-----------------------------------------
+10	3 = Day of month (1-31)
+-----------------------------------------
+11	4 = Month of year (1-12)
+-----------------------------------------
+12	5 = Day of week
+-----------------------------------------
+13		0 = Sun (or 7 = Sun)
+-----------------------------------------
+14		1 = Mon
+-----------------------------------------
+15		2 = Tues
+-----------------------------------------
+16		3 = Wed
+-----------------------------------------
+17		4 = Thurs
+-----------------------------------------
+18		5 = Fri
+-----------------------------------------
+19		6 = Sat
+-----------------------------------------
+20	============================================
+-----------------------------------------
+21	two types of cron tables are used by the cron daemon: user cron tables and system cron tables.
+-----------------------------------------
+22	user cron tables represent tasks that individual users schedule and exist in the /var/spool/cron directory on Fedora sys and /var/spool/cron/crontabs directory on Ubuntu sys.
+-----------------------------------------
+23	system cron tables contain system tasks and exist in the /etc/crontab file as well as the /etc/cron.d directory.
+-----------------------------------------
+24	to create or edit a user cron table, use the -e option to the crontab command. opens nano on fedora sys. enter the appropriate cron table entries.
+-----------------------------------------
+25	the file is saved the file "/var/spool/cron/root"
+-----------------------------------------
+26	to list your user cron table, you can use the -l option to the crontab command
+-----------------------------------------
+27	to remove a cron table and all scheduled jobs, use the -r option to the crontab command
+-----------------------------------------
+28	root user can edit, list, or remove any user's table by using -u option
+-----------------------------------------
+29	exampe:
+-----------------------------------------
+30	# crontab -r -u mary
+-----------------------------------------
+31	Linux systems are typically scheduled to run many commands during nonbusiness hours. Maintenance, back up data, run CPU-intensive programs.
+-----------------------------------------
+32	systemd timer units can be configured for this, but they are often configured BY the cron daemon from entries in the system cron table /etc/crontab. can only be edited by root.
+-----------------------------------------
+33	initial section of cron table specifies the env used while executing commands.
+-----------------------------------------
+34	the rest contains comments that identify the format of a cron table entry
+-----------------------------------------
+35	if you add your own entires here, they will be executed as root
+-----------------------------------------
+36	you may prefix the entry with a system cron table entry with the user account that it should be executed for
+-----------------------------------------
+37	you can also plac a cron table with same information in /etc/cron.d directory
+-----------------------------------------
+38	all entries in this dir can have the same format as /etc/crontab and are run by the system
+-----------------------------------------
+39	many tasks are run on a hourly, daily, etc basis. you dont need to make a table entry. Make a shell script and place it in one of these directories\: >> sc
+-----------------------------------------
+40	cl
+-----------------------------------------
+41	echo many tasks are run on a hourly, daily, etc basis. you don\t need to make a table entry. Make a shell script and place it in one of these directories:
+-----------------------------------------
+42		Hourly scripts: /etc/cron.hourly
+-----------------------------------------
+43		Daily scripts: /etc/cron.daily
+-----------------------------------------
+44		Weekly scripts: /etc/cron.weekly
+-----------------------------------------
+45		Monthly scripts: /etc/cron.monthly
+-----------------------------------------
+46	anacron daemon: a daemon started by cron to carry out scheduled tasks. unlike cron, if the system is powered off during a scheduled task, the anacron daemon will execute it the next power on.
+-----------------------------------------
+47	annoying differences between distros for crontab
+
